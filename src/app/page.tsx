@@ -239,9 +239,9 @@ export default function Page() {
                 <button className="btn-primary" onClick={() => generateImage(p.id)}>Generar IA</button>
                 {p.status === 'PUBLISHED' ? (
                   <button className="btn-soft" onClick={() => unpublishPlan(p.id)}>Despublicar</button>
-                ) : (
+                ) : p.status === 'GENERATED' ? (
                   <button className="btn-soft" onClick={() => publishPlan(p.id)}>Publicar</button>
-                )}
+                ) : null}
               </div>
             </article>
           ))}

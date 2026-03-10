@@ -10,6 +10,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   });
 
   if (!plan) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+  if (plan.status !== 'GENERATED') {
+    return NextResponse.json({ error: 'Solo se puede publicar contenido generado' }, { status: 400 });
+  }
 
   const conn = plan.account.connections.find((c) => c.platform === plan.account.platform);
 
