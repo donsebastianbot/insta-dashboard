@@ -8,6 +8,7 @@ type Account = {
   id: string;
   name: string;
   handle: string;
+  platform: 'INSTAGRAM' | 'TIKTOK';
   niche?: string;
   defaultProvider: 'OPENAI' | 'REPLICATE' | 'STABILITY' | 'MIDJOURNEY' | 'FLUX';
   defaultPrompt?: string;
@@ -24,6 +25,7 @@ type Plan = {
   caption?: string;
   prompt: string;
   selectedProvider: Account['defaultProvider'];
+  mediaType: 'IMAGE' | 'VIDEO';
   status: 'PLANNED' | 'GENERATED' | 'SCHEDULED' | 'PUBLISHED' | 'SKIPPED';
   imageUrl?: string;
   notes?: string;
@@ -43,6 +45,7 @@ export default function Page() {
     title: '',
     prompt: '',
     selectedProvider: 'OPENAI',
+    mediaType: 'IMAGE',
   });
 
   async function load() {
@@ -94,9 +97,12 @@ export default function Page() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl md:text-3xl font-semibold">InstaPilot Dashboard</h1>
-            <p className="text-zinc-500 text-sm mt-1">Gestiona cuentas de Instagram, planificación diaria y generación de imágenes por IA.</p>
+            <p className="text-zinc-500 text-sm mt-1">Gestiona cuentas de Instagram/TikTok, planificación diaria y generación de imágenes o vídeos con IA.</p>
           </div>
-          <Link href="/api/instagram/connect" className="btn-primary">Conectar cuenta Instagram</Link>
+          <div className="flex gap-2">
+            <Link href="/api/instagram/connect" className="btn-primary">Conectar Instagram</Link>
+            <Link href="/api/tiktok/connect" className="btn-soft">Conectar TikTok</Link>
+          </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
           <Stat label="Cuentas" value={metrics.accounts} />
@@ -115,7 +121,7 @@ export default function Page() {
               <div key={a.id} className="rounded-xl border border-zinc-200 p-3 flex items-center justify-between">
                 <div>
                   <p className="font-medium">{a.handle}</p>
-                  <p className="text-xs text-zinc-500">{a.name} · {a.defaultProvider}</p>
+                  <p className="text-xs text-zinc-500">{a.name} · {a.platform} · {a.defaultProvider}</p>
                 </div>
                 <span className="badge">{a.active ? 'Conectada' : 'Inactiva'}</span>
               </div>
@@ -135,6 +141,10 @@ export default function Page() {
           <textarea className="input min-h-20" placeholder="Prompt de imagen" value={newPlan.prompt} onChange={(e) => setNewPlan({ ...newPlan, prompt: e.target.value })} required />
           <select className="input" value={newPlan.selectedProvider} onChange={(e) => setNewPlan({ ...newPlan, selectedProvider: e.target.value as any })}>
             {providers.map((p) => <option key={p}>{p}</option>)}
+          </select>
+          <select className="input" value={newPlan.mediaType} onChange={(e) => setNewPlan({ ...newPlan, mediaType: e.target.value as 'IMAGE' | 'VIDEO' })}>
+            <option value="IMAGE">Imagen</option>
+            <option value="VIDEO">Vídeo</option>
           </select>
           <button className="btn-primary">Guardar planificación</button>
         </form>
@@ -157,6 +167,7 @@ export default function Page() {
                 <p className="text-xs text-zinc-500">{p.account.handle} · {format(new Date(p.date), 'dd/MM/yyyy')}</p>
               </div>
               <div className="text-xs"><span className="badge">{p.selectedProvider}</span></div>
+              <div className="text-xs"><span className="badge">{p.mediaType}</span></div>
               <div className="text-xs"><span className="badge">{p.status}</span></div>
               <div className="md:col-span-2 flex items-center gap-2 justify-end">
                 {p.imageUrl ? <a className="btn-soft" target="_blank" href={p.imageUrl}>Ver imagen</a> : null}

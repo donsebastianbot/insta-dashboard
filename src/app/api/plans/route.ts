@@ -19,6 +19,7 @@ export async function POST(request: Request) {
       caption: body.caption || null,
       prompt: body.prompt,
       selectedProvider: body.selectedProvider,
+      mediaType: body.mediaType || 'IMAGE',
       status: body.status || 'PLANNED',
       notes: body.notes || null,
       imageUrl: body.imageUrl || null,

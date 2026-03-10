@@ -8,17 +8,21 @@ Dashboard para gestionar múltiples cuentas de Instagram, planificar publicacion
 - Prisma + SQLite
 
 ## Funciones incluidas
-- Conexión de cuentas reales de Instagram vía OAuth (`/api/instagram/connect`)
+- Conexión de cuentas reales de Instagram y TikTok vía OAuth (`/api/instagram/connect`, `/api/tiktok/connect`)
 - Planificación diaria por cuenta
 - Selección de proveedor IA por publicación (OPENAI, REPLICATE, STABILITY, MIDJOURNEY, FLUX)
+- Selección de tipo de contenido por publicación: imagen o vídeo
 - Estado del contenido (planned/generated/scheduled/published/skipped)
 - Métricas rápidas del dashboard
 - Endpoint de generación (mock) que simula creación de imagen IA
 
-## Variables de entorno (Instagram OAuth)
+## Variables de entorno (OAuth)
 - `INSTAGRAM_APP_ID`
 - `INSTAGRAM_APP_SECRET`
 - `INSTAGRAM_REDIRECT_URI` (debe coincidir exactamente con la configurada en Meta)
+- `TIKTOK_CLIENT_KEY`
+- `TIKTOK_CLIENT_SECRET`
+- `TIKTOK_REDIRECT_URI`
 
 ## Ejecutar en local
 ```bash

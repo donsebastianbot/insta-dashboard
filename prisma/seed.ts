@@ -1,4 +1,4 @@
-import { PrismaClient, AiProvider, PlanStatus } from '@prisma/client';
+import { PrismaClient, AiProvider, PlanStatus, Platform, MediaType } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -11,6 +11,7 @@ async function main() {
       data: {
         name: 'Travel Vibes ES',
         handle: '@travelvibes_es',
+        platform: Platform.INSTAGRAM,
         niche: 'Viajes',
         defaultProvider: AiProvider.FLUX,
         defaultPrompt: 'Fotografía editorial de viajes, luz natural, composición cinematográfica',
@@ -20,6 +21,7 @@ async function main() {
       data: {
         name: 'Healthy Bites',
         handle: '@healthybites.daily',
+        platform: Platform.TIKTOK,
         niche: 'Comida saludable',
         defaultProvider: AiProvider.OPENAI,
         defaultPrompt: 'Food photography premium, fondo limpio, colores vibrantes',
@@ -41,6 +43,7 @@ async function main() {
           caption: 'Copy pendiente de revisión final.',
           prompt: c.defaultPrompt || 'Imagen estética para Instagram',
           selectedProvider: c.defaultProvider,
+          mediaType: i % 2 === 0 ? MediaType.IMAGE : MediaType.VIDEO,
           status: i === 0 ? PlanStatus.GENERATED : PlanStatus.PLANNED,
           imageUrl:
             i === 0

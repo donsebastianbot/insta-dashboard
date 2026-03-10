@@ -15,6 +15,16 @@ enum AiProvider {
   FLUX
 }
 
+enum Platform {
+  INSTAGRAM
+  TIKTOK
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
 enum PlanStatus {
   PLANNED
   GENERATED
@@ -27,6 +37,7 @@ model Account {
   id               String      @id @default(cuid())
   name             String
   handle           String      @unique
+  platform         Platform    @default(INSTAGRAM)
   niche            String?
   defaultProvider  AiProvider  @default(OPENAI)
   defaultPrompt    String?
@@ -36,15 +47,17 @@ model Account {
   updatedAt        DateTime    @updatedAt
 
   plans            ContentPlan[]
-  instagramConnection InstagramConnection?
+  connections      SocialConnection[]
 
   @@index([active])
+  @@index([platform])
 }
 
-model InstagramConnection {
+model SocialConnection {
   id           String   @id @default(cuid())
-  accountId    String   @unique
-  igUserId     String   @unique
+  accountId    String
+  platform     Platform
+  externalUserId String @unique
   username     String
   accessToken  String
   tokenType    String?
@@ -53,6 +66,9 @@ model InstagramConnection {
   updatedAt    DateTime @updatedAt
 
   account      Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+  @@index([platform])
 }
 
 model ContentPlan {
@@ -63,6 +79,7 @@ model ContentPlan {
   caption          String?
   prompt           String
   selectedProvider AiProvider
+  mediaType        MediaType   @default(IMAGE)
   status           PlanStatus  @default(PLANNED)
   imageUrl         String?
   notes            String?

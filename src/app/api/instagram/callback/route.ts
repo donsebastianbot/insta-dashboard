@@ -48,27 +48,30 @@ export async function GET(request: Request) {
 
     const account = await prisma.account.upsert({
       where: { handle: `@${username}` },
-      update: { name: username, active: true },
+      update: { name: username, platform: 'INSTAGRAM', active: true },
       create: {
         name: username,
         handle: `@${username}`,
+        platform: 'INSTAGRAM',
         defaultProvider: 'OPENAI',
         defaultPrompt: 'Imagen editorial de Instagram con estética premium',
         active: true,
       },
     });
 
-    await prisma.instagramConnection.upsert({
-      where: { igUserId },
+    await prisma.socialConnection.upsert({
+      where: { externalUserId: igUserId },
       update: {
         accountId: account.id,
+        platform: 'INSTAGRAM',
         username,
         accessToken,
         tokenType: 'bearer',
       },
       create: {
         accountId: account.id,
-        igUserId,
+        platform: 'INSTAGRAM',
+        externalUserId: igUserId,
         username,
         accessToken,
         tokenType: 'bearer',

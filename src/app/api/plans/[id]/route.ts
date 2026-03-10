@@ -14,6 +14,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       caption: body.caption,
       prompt: body.prompt,
       selectedProvider: body.selectedProvider,
+      mediaType: body.mediaType,
       status: body.status,
       notes: body.notes,
       imageUrl: body.imageUrl,
