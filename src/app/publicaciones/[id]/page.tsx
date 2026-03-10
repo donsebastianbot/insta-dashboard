@@ -64,8 +64,12 @@ export default function PublicacionDetalle({ params }: { params: Promise<{ id: s
         <h2 className="font-semibold">Interacción con IA</h2>
         <textarea className="input min-h-28" value={prompt} onChange={(e) => setPrompt(e.target.value)} />
         <div className="flex flex-wrap gap-2">
-          <button className="btn-primary" onClick={() => action('/api/generate', 'POST', { planId: plan.id, promptOverride: prompt })}>Generar / Rehacer IA</button>
-          <button className="btn-soft" onClick={() => action(`/api/plans/${plan.id}/meta`)}>Generar metadatos IA</button>
+          {plan.status !== 'PUBLISHED' && (
+            <>
+              <button className="btn-primary" onClick={() => action('/api/generate', 'POST', { planId: plan.id, promptOverride: prompt })}>Generar / Rehacer IA</button>
+              <button className="btn-soft" onClick={() => action(`/api/plans/${plan.id}/meta`)}>Generar metadatos IA</button>
+            </>
+          )}
           {plan.status === 'GENERATED' && plan.imageUrl && <button className="btn-soft" onClick={() => action(`/api/plans/${plan.id}/publish`)}>Publicar</button>}
           {plan.status === 'PUBLISHED' && <button className="btn-soft" onClick={() => action(`/api/plans/${plan.id}/unpublish`)}>Despublicar</button>}
           {plan.status === 'PUBLISHED' && <button className="btn-soft" onClick={() => action(`/api/plans/${plan.id}/stats`)}>Actualizar stats</button>}
