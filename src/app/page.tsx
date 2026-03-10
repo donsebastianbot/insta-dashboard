@@ -269,10 +269,11 @@ export default function Page() {
           {filteredPlans.map((p) => (
             <article key={p.id} className="rounded-xl border border-zinc-200 p-3 grid md:grid-cols-6 gap-3 items-center">
               <div className="md:col-span-2">
-                <p className="font-medium">{p.title}</p>
-                <p className="text-xs text-zinc-500">{p.account.handle} · {format(new Date(p.date), 'dd/MM/yyyy')}</p>
-                {p.caption ? <p className="text-xs text-zinc-600 mt-1 max-h-10 overflow-hidden">{p.caption}</p> : null}
-                {p.tags ? <p className="text-xs text-zinc-500 mt-1">{p.tags}</p> : null}
+                <Link className="font-medium hover:underline" href={`/publicaciones/${p.id}`}>{p.title}</Link>
+                <p className="text-xs text-zinc-500">{format(new Date(p.date), 'dd/MM/yyyy')}</p>
+                {(p.status === 'GENERATED' || p.status === 'PUBLISHED') && p.tags ? (
+                  <p className="text-xs text-zinc-500 mt-1">{p.tags}</p>
+                ) : null}
                 {p.status === 'PUBLISHED' && p.stats && (
                   <p className="text-xs text-zinc-600 mt-1">
                     ❤️ {p.stats.likes} · 💬 {p.stats.comments} · 👁 {p.stats.impressions} · 📣 {p.stats.reach}
