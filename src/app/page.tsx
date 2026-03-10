@@ -48,6 +48,7 @@ export default function Page() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selected, setSelected] = useState<string>('ALL');
+  const [isDark, setIsDark] = useState(false);
   const [rewriteOpen, setRewriteOpen] = useState(false);
   const [rewritePlanId, setRewritePlanId] = useState<string | null>(null);
   const [rewritePrompt, setRewritePrompt] = useState('');
@@ -74,7 +75,18 @@ export default function Page() {
 
   useEffect(() => {
     load();
+    const saved = localStorage.getItem('instapilot_theme');
+    const dark = saved === 'dark';
+    setIsDark(dark);
+    document.documentElement.classList.toggle('dark', dark);
   }, []);
+
+  function toggleTheme() {
+    const next = !isDark;
+    setIsDark(next);
+    document.documentElement.classList.toggle('dark', next);
+    localStorage.setItem('instapilot_theme', next ? 'dark' : 'light');
+  }
 
   const filteredPlans = useMemo(() => {
     if (selected === 'ALL') return plans;
@@ -182,6 +194,7 @@ export default function Page() {
             <p className="text-zinc-500 text-sm mt-1">Gestiona cuentas de Instagram/TikTok, planificación diaria y generación de imágenes o vídeos con IA.</p>
           </div>
           <div className="flex gap-2">
+            <button className="btn-soft" onClick={toggleTheme}>{isDark ? '☀️ Claro' : '🌙 Oscuro'}</button>
             <Link href="/api/instagram/connect" className="btn-primary">Conectar Instagram</Link>
             <Link href="/api/tiktok/connect" className="btn-soft">Conectar TikTok</Link>
           </div>
