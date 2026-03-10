@@ -39,6 +39,8 @@ export default function Page() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selected, setSelected] = useState<string>('ALL');
 
+  const [assignMode, setAssignMode] = useState<'SINGLE' | 'RANGE'>('SINGLE');
+
   const [newPlan, setNewPlan] = useState({
     accountId: '',
     date: new Date().toISOString().slice(0, 10),
@@ -46,6 +48,9 @@ export default function Page() {
     prompt: '',
     selectedProvider: 'OPENAI',
     mediaType: 'IMAGE',
+    topic: '',
+    startDate: new Date().toISOString().slice(0, 10),
+    endDate: new Date().toISOString().slice(0, 10),
   });
 
   async function load() {
@@ -73,12 +78,30 @@ export default function Page() {
 
   async function createPlan(e: React.FormEvent) {
     e.preventDefault();
-    await fetch('/api/plans', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(newPlan),
-    });
-    setNewPlan({ ...newPlan, title: '', prompt: '' });
+
+    if (assignMode === 'RANGE') {
+      await fetch('/api/plans/bulk', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          accountId: newPlan.accountId,
+          startDate: newPlan.startDate,
+          endDate: newPlan.endDate,
+          topic: newPlan.topic,
+          mediaType: newPlan.mediaType,
+          selectedProvider: newPlan.selectedProvider,
+        }),
+      });
+      setNewPlan({ ...newPlan, topic: '' });
+    } else {
+      await fetch('/api/plans', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(newPlan),
+      });
+      setNewPlan({ ...newPlan, title: '', prompt: '' });
+    }
+
     await load();
   }
 
@@ -131,22 +154,46 @@ export default function Page() {
         </div>
 
         <form onSubmit={createPlan} className="card p-4 space-y-2">
-          <h2 className="font-semibold">Asignar publicación diaria</h2>
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="font-semibold">Asignar publicación</h2>
+            <div className="flex gap-1">
+              <button type="button" className={assignMode === 'SINGLE' ? 'btn-primary' : 'btn-soft'} onClick={() => setAssignMode('SINGLE')}>Única</button>
+              <button type="button" className={assignMode === 'RANGE' ? 'btn-primary' : 'btn-soft'} onClick={() => setAssignMode('RANGE')}>Rango</button>
+            </div>
+          </div>
+
           <select className="input" value={newPlan.accountId} onChange={(e) => setNewPlan({ ...newPlan, accountId: e.target.value })} required>
             <option value="">Selecciona cuenta</option>
             {accounts.map((a) => <option key={a.id} value={a.id}>{a.handle}</option>)}
           </select>
-          <input className="input" type="date" value={newPlan.date} onChange={(e) => setNewPlan({ ...newPlan, date: e.target.value })} required />
-          <input className="input" placeholder="Título del post" value={newPlan.title} onChange={(e) => setNewPlan({ ...newPlan, title: e.target.value })} required />
-          <textarea className="input min-h-20" placeholder="Prompt de imagen" value={newPlan.prompt} onChange={(e) => setNewPlan({ ...newPlan, prompt: e.target.value })} required />
+
           <select className="input" value={newPlan.selectedProvider} onChange={(e) => setNewPlan({ ...newPlan, selectedProvider: e.target.value as any })}>
             {providers.map((p) => <option key={p}>{p}</option>)}
           </select>
+
           <select className="input" value={newPlan.mediaType} onChange={(e) => setNewPlan({ ...newPlan, mediaType: e.target.value as 'IMAGE' | 'VIDEO' })}>
             <option value="IMAGE">Imagen</option>
             <option value="VIDEO">Vídeo</option>
           </select>
-          <button className="btn-primary">Guardar planificación</button>
+
+          {assignMode === 'SINGLE' ? (
+            <>
+              <input className="input" type="date" value={newPlan.date} onChange={(e) => setNewPlan({ ...newPlan, date: e.target.value })} required />
+              <input className="input" placeholder="Título del post" value={newPlan.title} onChange={(e) => setNewPlan({ ...newPlan, title: e.target.value })} required />
+              <textarea className="input min-h-20" placeholder="Prompt (sobre qué va este contenido)" value={newPlan.prompt} onChange={(e) => setNewPlan({ ...newPlan, prompt: e.target.value })} required />
+            </>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-2">
+                <input className="input" type="date" value={newPlan.startDate} onChange={(e) => setNewPlan({ ...newPlan, startDate: e.target.value })} required />
+                <input className="input" type="date" value={newPlan.endDate} onChange={(e) => setNewPlan({ ...newPlan, endDate: e.target.value })} required />
+              </div>
+              <textarea className="input min-h-20" placeholder="Tema concreto (ej: recetas proteicas para cena rápida)" value={newPlan.topic} onChange={(e) => setNewPlan({ ...newPlan, topic: e.target.value })} required />
+              <p className="text-xs text-zinc-500">Se crearán publicaciones diarias automáticamente en el rango seleccionado.</p>
+            </>
+          )}
+
+          <button className="btn-primary">{assignMode === 'RANGE' ? 'Crear planificación por rango' : 'Guardar planificación'}</button>
         </form>
       </section>
 
