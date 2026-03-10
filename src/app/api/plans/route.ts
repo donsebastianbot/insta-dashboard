@@ -17,6 +17,7 @@ export async function POST(request: Request) {
       date: new Date(body.date),
       title: body.title,
       caption: body.caption || null,
+      tags: body.tags || null,
       prompt: body.prompt,
       selectedProvider: body.selectedProvider,
       mediaType: body.mediaType || 'IMAGE',

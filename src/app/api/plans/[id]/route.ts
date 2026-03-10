@@ -12,6 +12,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       date: body.date ? new Date(body.date) : undefined,
       title: body.title,
       caption: body.caption,
+      tags: body.tags,
       prompt: body.prompt,
       selectedProvider: body.selectedProvider,
       mediaType: body.mediaType,

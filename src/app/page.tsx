@@ -23,6 +23,7 @@ type Plan = {
   date: string;
   title: string;
   caption?: string;
+  tags?: string;
   prompt: string;
   selectedProvider: Account['defaultProvider'];
   mediaType: 'IMAGE' | 'VIDEO';
@@ -165,6 +166,13 @@ export default function Page() {
     await load();
   }
 
+  async function generateMeta(planId: string) {
+    const res = await fetch(`/api/plans/${planId}/meta`, { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) return alert(data.error || 'No se pudieron generar metadatos');
+    await load();
+  }
+
   return (
     <main className="max-w-7xl mx-auto p-4 md:p-8 space-y-6">
       <header className="card p-5">
@@ -263,6 +271,8 @@ export default function Page() {
               <div className="md:col-span-2">
                 <p className="font-medium">{p.title}</p>
                 <p className="text-xs text-zinc-500">{p.account.handle} · {format(new Date(p.date), 'dd/MM/yyyy')}</p>
+                {p.caption ? <p className="text-xs text-zinc-600 mt-1 max-h-10 overflow-hidden">{p.caption}</p> : null}
+                {p.tags ? <p className="text-xs text-zinc-500 mt-1">{p.tags}</p> : null}
                 {p.status === 'PUBLISHED' && p.stats && (
                   <p className="text-xs text-zinc-600 mt-1">
                     ❤️ {p.stats.likes} · 💬 {p.stats.comments} · 👁 {p.stats.impressions} · 📣 {p.stats.reach}
@@ -275,6 +285,7 @@ export default function Page() {
               <div className="text-xs"><span className="badge">{p.status}</span></div>
               <div className="md:col-span-2 flex items-center gap-2 justify-end">
                 {p.imageUrl ? <a className="btn-soft" target="_blank" href={p.imageUrl}>Ver {p.mediaType === 'VIDEO' ? 'vídeo' : 'imagen'}</a> : null}
+                <button className="btn-soft" onClick={() => generateMeta(p.id)}>Meta IA</button>
 
                 {p.status === 'PUBLISHED' ? (
                   <>

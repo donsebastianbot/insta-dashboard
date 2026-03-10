@@ -77,6 +77,7 @@ model ContentPlan {
   date             DateTime
   title            String
   caption          String?
+  tags             String?
   prompt           String
   selectedProvider AiProvider
   mediaType        MediaType   @default(IMAGE)
