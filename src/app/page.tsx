@@ -236,12 +236,14 @@ export default function Page() {
               <div className="text-xs"><span className="badge">{p.status}</span></div>
               <div className="md:col-span-2 flex items-center gap-2 justify-end">
                 {p.imageUrl ? <a className="btn-soft" target="_blank" href={p.imageUrl}>Ver {p.mediaType === 'VIDEO' ? 'vídeo' : 'imagen'}</a> : null}
-                <button className="btn-primary" onClick={() => generateImage(p.id)}>Generar IA</button>
+
                 {p.status === 'PUBLISHED' ? (
                   <button className="btn-soft" onClick={() => unpublishPlan(p.id)}>Despublicar</button>
                 ) : p.status === 'GENERATED' && !!p.imageUrl ? (
                   <button className="btn-soft" onClick={() => publishPlan(p.id)}>Publicar</button>
-                ) : null}
+                ) : (
+                  <button className="btn-primary" onClick={() => generateImage(p.id)}>Generar IA</button>
+                )}
               </div>
             </article>
           ))}
