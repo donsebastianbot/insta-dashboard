@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   const plans = await prisma.contentPlan.findMany({
-    include: { account: true },
+    include: { account: true, stats: true },
     orderBy: [{ date: 'asc' }, { createdAt: 'desc' }],
   });
   return NextResponse.json(plans);

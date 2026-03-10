@@ -30,6 +30,14 @@ type Plan = {
   imageUrl?: string;
   externalPostId?: string;
   notes?: string;
+  stats?: {
+    likes: number;
+    comments: number;
+    impressions: number;
+    reach: number;
+    plays: number;
+    updatedAt: string;
+  } | null;
   account: Account;
 };
 
@@ -150,6 +158,13 @@ export default function Page() {
     await load();
   }
 
+  async function refreshStats(planId: string) {
+    const res = await fetch(`/api/plans/${planId}/stats`, { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) return alert(data.error || 'No se pudieron actualizar estadísticas');
+    await load();
+  }
+
   return (
     <main className="max-w-7xl mx-auto p-4 md:p-8 space-y-6">
       <header className="card p-5">
@@ -248,6 +263,12 @@ export default function Page() {
               <div className="md:col-span-2">
                 <p className="font-medium">{p.title}</p>
                 <p className="text-xs text-zinc-500">{p.account.handle} · {format(new Date(p.date), 'dd/MM/yyyy')}</p>
+                {p.status === 'PUBLISHED' && p.stats && (
+                  <p className="text-xs text-zinc-600 mt-1">
+                    ❤️ {p.stats.likes} · 💬 {p.stats.comments} · 👁 {p.stats.impressions} · 📣 {p.stats.reach}
+                    {p.mediaType === 'VIDEO' ? ` · ▶ ${p.stats.plays}` : ''}
+                  </p>
+                )}
               </div>
               <div className="text-xs"><span className="badge">{p.selectedProvider}</span></div>
               <div className="text-xs"><span className="badge">{p.mediaType}</span></div>
@@ -256,7 +277,10 @@ export default function Page() {
                 {p.imageUrl ? <a className="btn-soft" target="_blank" href={p.imageUrl}>Ver {p.mediaType === 'VIDEO' ? 'vídeo' : 'imagen'}</a> : null}
 
                 {p.status === 'PUBLISHED' ? (
-                  <button className="btn-soft" onClick={() => unpublishPlan(p.id)}>Despublicar</button>
+                  <>
+                    <button className="btn-soft" onClick={() => refreshStats(p.id)}>Actualizar stats</button>
+                    <button className="btn-soft" onClick={() => unpublishPlan(p.id)}>Despublicar</button>
+                  </>
                 ) : p.status === 'GENERATED' && !!p.imageUrl ? (
                   <>
                     <button className="btn-soft" onClick={() => openRewrite(p)}>Rehacer IA</button>

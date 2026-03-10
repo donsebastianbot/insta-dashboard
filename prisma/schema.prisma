@@ -88,8 +88,22 @@ model ContentPlan {
   updatedAt        DateTime    @updatedAt
 
   account          Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  stats            PostStats?
 
   @@index([accountId])
   @@index([date])
   @@index([status])
+}
+
+model PostStats {
+  id            String   @id @default(cuid())
+  planId         String   @unique
+  likes          Int      @default(0)
+  comments       Int      @default(0)
+  impressions    Int      @default(0)
+  reach          Int      @default(0)
+  plays          Int      @default(0)
+  updatedAt      DateTime @updatedAt
+
+  plan          ContentPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
 }
