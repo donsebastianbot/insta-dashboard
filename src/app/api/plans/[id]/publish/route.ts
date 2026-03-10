@@ -13,6 +13,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   if (plan.status !== 'GENERATED') {
     return NextResponse.json({ error: 'Solo se puede publicar contenido generado' }, { status: 400 });
   }
+  if (!plan.imageUrl) {
+    return NextResponse.json({ error: 'No hay imagen/vídeo generado para publicar' }, { status: 400 });
+  }
 
   const conn = plan.account.connections.find((c) => c.platform === plan.account.platform);
 
