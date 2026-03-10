@@ -115,16 +115,21 @@ export default function Page() {
     await load();
   }
 
-  async function deletePlan(planId: string) {
-    if (!confirm('¿Borrar esta publicación?')) return;
-    const res = await fetch(`/api/plans/${planId}`, { method: 'DELETE' });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.remoteWarning) alert(data.remoteWarning);
-      await load();
-    } else {
-      alert('No se pudo borrar la publicación');
-    }
+  async function publishPlan(planId: string) {
+    const res = await fetch(`/api/plans/${planId}/publish`, { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) return alert('No se pudo publicar');
+    if (data.warning) alert(data.warning);
+    await load();
+  }
+
+  async function unpublishPlan(planId: string) {
+    if (!confirm('¿Despublicar esta publicación?')) return;
+    const res = await fetch(`/api/plans/${planId}/unpublish`, { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) return alert('No se pudo despublicar');
+    if (data.warning) alert(data.warning);
+    await load();
   }
 
   return (
@@ -232,7 +237,11 @@ export default function Page() {
               <div className="md:col-span-2 flex items-center gap-2 justify-end">
                 {p.imageUrl ? <a className="btn-soft" target="_blank" href={p.imageUrl}>Ver {p.mediaType === 'VIDEO' ? 'vídeo' : 'imagen'}</a> : null}
                 <button className="btn-primary" onClick={() => generateImage(p.id)}>Generar IA</button>
-                <button className="btn-soft" onClick={() => deletePlan(p.id)}>Borrar</button>
+                {p.status === 'PUBLISHED' ? (
+                  <button className="btn-soft" onClick={() => unpublishPlan(p.id)}>Despublicar</button>
+                ) : (
+                  <button className="btn-soft" onClick={() => publishPlan(p.id)}>Publicar</button>
+                )}
               </div>
             </article>
           ))}
