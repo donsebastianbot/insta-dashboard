@@ -284,22 +284,7 @@ export default function Page() {
               <div className="text-xs"><span className="badge">{p.mediaType}</span></div>
               <div className="text-xs"><span className="badge">{p.status}</span></div>
               <div className="md:col-span-2 flex items-center gap-2 justify-end">
-                {p.imageUrl ? <a className="btn-soft" target="_blank" href={p.imageUrl}>Ver {p.mediaType === 'VIDEO' ? 'vídeo' : 'imagen'}</a> : null}
-                <button className="btn-soft" onClick={() => generateMeta(p.id)}>Meta IA</button>
-
-                {p.status === 'PUBLISHED' ? (
-                  <>
-                    <button className="btn-soft" onClick={() => refreshStats(p.id)}>Actualizar stats</button>
-                    <button className="btn-soft" onClick={() => unpublishPlan(p.id)}>Despublicar</button>
-                  </>
-                ) : p.status === 'GENERATED' && !!p.imageUrl ? (
-                  <>
-                    <button className="btn-soft" onClick={() => openRewrite(p)}>Rehacer IA</button>
-                    <button className="btn-soft" onClick={() => publishPlan(p.id)}>Publicar</button>
-                  </>
-                ) : (
-                  <button className="btn-primary" onClick={() => generateImage(p.id)}>Generar IA</button>
-                )}
+                <Link className="btn-soft" href={`/publicaciones/${p.id}`}>Abrir publicación</Link>
               </div>
             </article>
           ))}
