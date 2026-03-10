@@ -13,7 +13,7 @@ const mockVideos = [
 ];
 
 export async function POST(request: Request) {
-  const { planId } = await request.json();
+  const { planId, promptOverride } = await request.json();
   const current = await prisma.contentPlan.findUnique({ where: { id: planId } });
   if (!current) return NextResponse.json({ error: 'Plan no encontrado' }, { status: 404 });
 
@@ -25,6 +25,7 @@ export async function POST(request: Request) {
     where: { id: planId },
     data: {
       imageUrl,
+      prompt: promptOverride || current.prompt,
       status: 'GENERATED',
     },
     include: { account: true },

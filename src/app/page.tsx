@@ -39,6 +39,9 @@ export default function Page() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selected, setSelected] = useState<string>('ALL');
+  const [rewriteOpen, setRewriteOpen] = useState(false);
+  const [rewritePlanId, setRewritePlanId] = useState<string | null>(null);
+  const [rewritePrompt, setRewritePrompt] = useState('');
 
   const [assignMode, setAssignMode] = useState<'SINGLE' | 'RANGE'>('SINGLE');
 
@@ -106,13 +109,28 @@ export default function Page() {
     await load();
   }
 
-  async function generateImage(planId: string) {
+  async function generateImage(planId: string, promptOverride?: string) {
     await fetch('/api/generate', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ planId }),
+      body: JSON.stringify({ planId, promptOverride }),
     });
     await load();
+  }
+
+  function openRewrite(plan: Plan) {
+    setRewritePlanId(plan.id);
+    setRewritePrompt(plan.prompt || '');
+    setRewriteOpen(true);
+  }
+
+  async function submitRewrite(e: React.FormEvent) {
+    e.preventDefault();
+    if (!rewritePlanId) return;
+    await generateImage(rewritePlanId, rewritePrompt);
+    setRewriteOpen(false);
+    setRewritePlanId(null);
+    setRewritePrompt('');
   }
 
   async function publishPlan(planId: string) {
@@ -241,7 +259,7 @@ export default function Page() {
                   <button className="btn-soft" onClick={() => unpublishPlan(p.id)}>Despublicar</button>
                 ) : p.status === 'GENERATED' && !!p.imageUrl ? (
                   <>
-                    <button className="btn-soft" onClick={() => generateImage(p.id)}>Rehacer IA</button>
+                    <button className="btn-soft" onClick={() => openRewrite(p)}>Rehacer IA</button>
                     <button className="btn-soft" onClick={() => publishPlan(p.id)}>Publicar</button>
                   </>
                 ) : (
@@ -253,6 +271,19 @@ export default function Page() {
           {filteredPlans.length === 0 && <p className="text-sm text-zinc-500">No hay publicaciones planificadas.</p>}
         </div>
       </section>
+
+      {rewriteOpen && (
+        <div className="fixed inset-0 bg-black/40 p-4 grid place-items-center z-50" onMouseDown={(e) => { if (e.target === e.currentTarget) setRewriteOpen(false); }}>
+          <form onSubmit={submitRewrite} onMouseDown={(e) => e.stopPropagation()} className="w-full max-w-xl card p-4 space-y-3">
+            <h3 className="font-semibold">Rehacer IA con nuevo prompt</h3>
+            <textarea className="input min-h-32" value={rewritePrompt} onChange={(e) => setRewritePrompt(e.target.value)} required />
+            <div className="flex justify-end gap-2">
+              <button type="button" className="btn-soft" onClick={() => setRewriteOpen(false)}>Cancelar</button>
+              <button className="btn-primary">Regenerar</button>
+            </div>
+          </form>
+        </div>
+      )}
     </main>
   );
 }
