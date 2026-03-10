@@ -28,6 +28,7 @@ type Plan = {
   mediaType: 'IMAGE' | 'VIDEO';
   status: 'PLANNED' | 'GENERATED' | 'SCHEDULED' | 'PUBLISHED' | 'SKIPPED';
   imageUrl?: string;
+  externalPostId?: string;
   notes?: string;
   account: Account;
 };
@@ -112,6 +113,18 @@ export default function Page() {
       body: JSON.stringify({ planId }),
     });
     await load();
+  }
+
+  async function deletePlan(planId: string) {
+    if (!confirm('¿Borrar esta publicación?')) return;
+    const res = await fetch(`/api/plans/${planId}`, { method: 'DELETE' });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.remoteWarning) alert(data.remoteWarning);
+      await load();
+    } else {
+      alert('No se pudo borrar la publicación');
+    }
   }
 
   return (
@@ -217,8 +230,9 @@ export default function Page() {
               <div className="text-xs"><span className="badge">{p.mediaType}</span></div>
               <div className="text-xs"><span className="badge">{p.status}</span></div>
               <div className="md:col-span-2 flex items-center gap-2 justify-end">
-                {p.imageUrl ? <a className="btn-soft" target="_blank" href={p.imageUrl}>Ver imagen</a> : null}
+                {p.imageUrl ? <a className="btn-soft" target="_blank" href={p.imageUrl}>Ver {p.mediaType === 'VIDEO' ? 'vídeo' : 'imagen'}</a> : null}
                 <button className="btn-primary" onClick={() => generateImage(p.id)}>Generar IA</button>
+                <button className="btn-soft" onClick={() => deletePlan(p.id)}>Borrar</button>
               </div>
             </article>
           ))}

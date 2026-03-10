@@ -82,6 +82,7 @@ model ContentPlan {
   mediaType        MediaType   @default(IMAGE)
   status           PlanStatus  @default(PLANNED)
   imageUrl         String?
+  externalPostId   String?
   notes            String?
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
