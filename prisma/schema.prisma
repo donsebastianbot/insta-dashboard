@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum AiProvider {
+  OPENAI
+  REPLICATE
+  STABILITY
+  MIDJOURNEY
+  FLUX
+}
+
+enum PlanStatus {
+  PLANNED
+  GENERATED
+  SCHEDULED
+  PUBLISHED
+  SKIPPED
+}
+
+model Account {
+  id               String      @id @default(cuid())
+  name             String
+  handle           String      @unique
+  niche            String?
+  defaultProvider  AiProvider  @default(OPENAI)
+  defaultPrompt    String?
+  active           Boolean     @default(true)
+  timezone         String      @default("Europe/Madrid")
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  plans            ContentPlan[]
+
+  @@index([active])
+}
+
+model ContentPlan {
+  id               String      @id @default(cuid())
+  accountId        String
+  date             DateTime
+  title            String
+  caption          String?
+  prompt           String
+  selectedProvider AiProvider
+  status           PlanStatus  @default(PLANNED)
+  imageUrl         String?
+  notes            String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  account          Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+  @@index([date])
+  @@index([status])
+}
