@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { format } from 'date-fns';
 
 type Account = {
@@ -36,14 +37,6 @@ export default function Page() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selected, setSelected] = useState<string>('ALL');
 
-  const [newAccount, setNewAccount] = useState({
-    name: '',
-    handle: '',
-    niche: '',
-    defaultProvider: 'OPENAI',
-    defaultPrompt: '',
-  });
-
   const [newPlan, setNewPlan] = useState({
     accountId: '',
     date: new Date().toISOString().slice(0, 10),
@@ -75,17 +68,6 @@ export default function Page() {
     return { accounts: accounts.length, dueToday, generated, published };
   }, [accounts, plans]);
 
-  async function createAccount(e: React.FormEvent) {
-    e.preventDefault();
-    await fetch('/api/accounts', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(newAccount),
-    });
-    setNewAccount({ name: '', handle: '', niche: '', defaultProvider: 'OPENAI', defaultPrompt: '' });
-    await load();
-  }
-
   async function createPlan(e: React.FormEvent) {
     e.preventDefault();
     await fetch('/api/plans', {
@@ -109,8 +91,13 @@ export default function Page() {
   return (
     <main className="max-w-7xl mx-auto p-4 md:p-8 space-y-6">
       <header className="card p-5">
-        <h1 className="text-2xl md:text-3xl font-semibold">InstaPilot Dashboard</h1>
-        <p className="text-zinc-500 text-sm mt-1">Gestiona cuentas de Instagram, planificación diaria y generación de imágenes por IA.</p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-semibold">InstaPilot Dashboard</h1>
+            <p className="text-zinc-500 text-sm mt-1">Gestiona cuentas de Instagram, planificación diaria y generación de imágenes por IA.</p>
+          </div>
+          <Link href="/api/instagram/connect" className="btn-primary">Conectar cuenta Instagram</Link>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
           <Stat label="Cuentas" value={metrics.accounts} />
           <Stat label="Posts hoy" value={metrics.dueToday} />
@@ -120,17 +107,22 @@ export default function Page() {
       </header>
 
       <section className="grid lg:grid-cols-2 gap-4">
-        <form onSubmit={createAccount} className="card p-4 space-y-2">
-          <h2 className="font-semibold">Nueva cuenta</h2>
-          <input className="input" placeholder="Nombre" value={newAccount.name} onChange={(e) => setNewAccount({ ...newAccount, name: e.target.value })} required />
-          <input className="input" placeholder="@handle" value={newAccount.handle} onChange={(e) => setNewAccount({ ...newAccount, handle: e.target.value })} required />
-          <input className="input" placeholder="Nicho" value={newAccount.niche} onChange={(e) => setNewAccount({ ...newAccount, niche: e.target.value })} />
-          <select className="input" value={newAccount.defaultProvider} onChange={(e) => setNewAccount({ ...newAccount, defaultProvider: e.target.value as any })}>
-            {providers.map((p) => <option key={p}>{p}</option>)}
-          </select>
-          <textarea className="input min-h-20" placeholder="Prompt base" value={newAccount.defaultPrompt} onChange={(e) => setNewAccount({ ...newAccount, defaultPrompt: e.target.value })} />
-          <button className="btn-primary">Crear cuenta</button>
-        </form>
+        <div className="card p-4 space-y-3">
+          <h2 className="font-semibold">Cuentas conectadas</h2>
+          <p className="text-sm text-zinc-500">Conecta cuentas reales desde el botón superior. No se crean manualmente aquí.</p>
+          <div className="space-y-2">
+            {accounts.map((a) => (
+              <div key={a.id} className="rounded-xl border border-zinc-200 p-3 flex items-center justify-between">
+                <div>
+                  <p className="font-medium">{a.handle}</p>
+                  <p className="text-xs text-zinc-500">{a.name} · {a.defaultProvider}</p>
+                </div>
+                <span className="badge">{a.active ? 'Conectada' : 'Inactiva'}</span>
+              </div>
+            ))}
+            {accounts.length === 0 && <p className="text-sm text-zinc-500">Aún no hay cuentas conectadas.</p>}
+          </div>
+        </div>
 
         <form onSubmit={createPlan} className="card p-4 space-y-2">
           <h2 className="font-semibold">Asignar publicación diaria</h2>

@@ -1,0 +1,6 @@
+tunnel: 1e801c26-c515-4c57-8e27-b8660838f142
+credentials-file: /data/.cloudflared/1e801c26-c515-4c57-8e27-b8660838f142.json
+ingress:
+  - hostname: instapilot.iamoex.com
+    service: http://127.0.0.1:3003
+  - service: http_status:404

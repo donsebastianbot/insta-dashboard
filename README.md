@@ -8,12 +8,17 @@ Dashboard para gestionar múltiples cuentas de Instagram, planificar publicacion
 - Prisma + SQLite
 
 ## Funciones incluidas
-- Alta de cuentas Instagram (handle, nicho, IA por defecto, prompt base)
+- Conexión de cuentas reales de Instagram vía OAuth (`/api/instagram/connect`)
 - Planificación diaria por cuenta
 - Selección de proveedor IA por publicación (OPENAI, REPLICATE, STABILITY, MIDJOURNEY, FLUX)
 - Estado del contenido (planned/generated/scheduled/published/skipped)
 - Métricas rápidas del dashboard
 - Endpoint de generación (mock) que simula creación de imagen IA
+
+## Variables de entorno (Instagram OAuth)
+- `INSTAGRAM_APP_ID`
+- `INSTAGRAM_APP_SECRET`
+- `INSTAGRAM_REDIRECT_URI` (debe coincidir exactamente con la configurada en Meta)
 
 ## Ejecutar en local
 ```bash
